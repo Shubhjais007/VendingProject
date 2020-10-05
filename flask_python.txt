@@ -1,0 +1,25 @@
+pip install virtualenv
+
+py -m venv venv
+
+pip install flask
+pip install python-dotenv
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+venv\Scripts\activate
+flask run
+
+deactivate --to deactivate the environment
+
+---------------------------------------------------------------------------------------------------------------------
+Create react app:
+npx create-react-app name_of_app
+cd name_of_app
+
+create virtual environment for flask :
+virtualenv -p python3 venv
+
+error: -(Wheel pep517)
+python -m pip install --upgrade pip
+python -m pip install --no-use-pep517 bcrypt
