@@ -21,6 +21,7 @@ import logo from '../Media/NutriFills_logo.jpg';
 import HomeFragments from '../Fragments/HomeFragments';
 import DeviceFragments from '../Fragments/DeviceFragments';
 //import StatusFragments from '../Fragments/StatusFragments';
+import AddDeviceFragments from '../Fragments/AddDeviceFragments';
 import UserFragments from '../Fragments/UserFragments';
 //import LogoutFragments from '../Fragments/Logoutfragments';
 import { firebaseAuth } from '../firebase';
@@ -53,32 +54,29 @@ const useStyles = makeStyles((theme) => ({
 export default function ClippedDrawer() {
   const classes = useStyles();
   const [fragement, setfragment] = useState("Home");
-
+  let userName = JSON.parse(localStorage.getItem('user'));
+  let checkRole = (userName !== null ? userName.first_name : "");
+  
   const loadFragement = () => {
       switch(fragement) {
         case "Home":
             return <HomeFragments/>;
         case "Device":
             return <DeviceFragments/>;
-        // case "Status":
-        //     return <StatusFragments/>;
+        case "AddDevice":
+            return <AddDeviceFragments/>;
         case "User":
             return <UserFragments/>;
         case "Logout":            
             firebaseAuth.signOut();
             localStorage.removeItem('user');
+            localStorage.removeItem('selectedRow');
             localStorage.removeItem('usertoken');
             return <Redirect to='/login' />;            
         default:
             break;
       }
   }
-
-  /* <ListItem button onClick={(e) => {setfragment("Status")}}>
-                <AssignmentRounded color="primary" style={{marginRight:"4px"}}/>
-                <ListItemText primary={"Status"} display="inline"/>
-            </ListItem>  */
-
 
   return (
     <div className={classes.root}>
@@ -109,11 +107,23 @@ export default function ClippedDrawer() {
             <ListItem button onClick={(e) => {setfragment("Device")}}>
                 <DeviceHubRounded color="primary" style={{marginRight:"4px"}}/>
                 <ListItemText primary={"Device"} display="inline"/>
-            </ListItem>             
-            <ListItem button onClick={(e) => {setfragment("User")}}>
-                <PersonAddRounded color="primary" style={{marginRight:"4px"}}/>
-                <ListItemText primary={"User"} display="inline"/>
-            </ListItem>           
+            </ListItem> 
+            {
+              checkRole === 'Admin' ?
+              <ListItem button onClick={(e) => {setfragment("AddDevice")}}>
+                  <DeviceHubRounded color="primary" style={{marginRight:"4px"}}/>
+                  <ListItemText primary={"Add Device"} display="inline"/>
+              </ListItem>
+              : null
+             }      
+            {
+              checkRole === 'Admin' ?
+              <ListItem button onClick={(e) => {setfragment("User")}}>
+                  <PersonAddRounded color="primary" style={{marginRight:"4px"}}/>
+                  <ListItemText primary={"User"} display="inline"/>
+              </ListItem>
+              : null
+             }            
           </List>
           <Divider />
           <List>            

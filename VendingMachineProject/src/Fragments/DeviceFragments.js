@@ -49,10 +49,12 @@ const tableIcons = {
 export class DeviceFragments extends Component {
   constructor(props) {
     super(props)
+    //this.handleRowAdd = this.bind.handleRowAdd(this);
     const handleChange =(rowData) => {
       console.log(JSON.parse(localStorage.getItem('selectedRow')));
       console.log(rowData.target.checked);
     };
+    
     this.state = {
       columns: [ //Merchant ID	Store ID	Terminal ID
         { title: 'Merchant ID', field: 'merchantId' },
@@ -60,7 +62,7 @@ export class DeviceFragments extends Component {
         { title: 'Terminal ID', field: 'terminalId'},
         { title: 'User ID', field: 'userId'},
         { title: 'Location', field: 'location'},
-        { title: 'Status', field: 'status', type: 'boolean', render: rowData => <Switch checked={rowData.active} onChange = {(active) => handleChange(active)}/>},        
+        { title: 'Status', field: 'status', type: 'boolean', render: rowData => <Switch checked={rowData.status} onChange = {(status) => handleChange(status)}/>},        
       ],
       deviceData : [],
       user : JSON.parse(localStorage.getItem('user')),  
@@ -69,13 +71,6 @@ export class DeviceFragments extends Component {
   
   //axios.get(EMPLOYEE_API_BASE_URL)
   componentDidMount(){
-    console.log("Welcome to Device section");
-    const UserVal = JSON.parse(localStorage.getItem('user'));
-    //this.setState({ user: UserVal});
-    console.log(this.state.user);
-    console.log(this.state.user.email);
-    console.log(UserVal);
-    console.log(UserVal.email);
     if(this.state.user.first_name !== "Admin"){
       axios.post('/home/userDevice', {email : this.state.user.email}).then((res) => {
         this.setState({ deviceData: res.data});
@@ -87,19 +82,36 @@ export class DeviceFragments extends Component {
       });
     }    
   }
-      // console.log("Welcome to user Profile");  
-      //   const User =JSON.parse(localStorage.getItem('user'));
-      //   console.log("Checking for Token");
-      //   if(User){
-      //     // User is signed in.        
-      //     setuserLogIn(true);
-      //     console.log("Server Auth");
-      //     console.log(userLogIn);
-      //   } else {
-      //     // User is signed out.
-      //     setuserLogIn(false);
-      //   }
 
+  // const handleRowAdd = (rowData, resolve) => {
+
+  //   console.log(rowData);
+  //   resolve()
+  //   //validation
+  //   // let errorList =[]
+  //   // if(newData.first_name === undefined){
+  //   //   errorList.push("Please enter first name")
+  //   // }
+
+  //   // if(errorList.length < 1){
+  //   //   //API call 
+  //   //   axios.post('/home/addDevice', rowData)
+  //   //   .then((res) => {
+  //   //     let dataToAdd = [...data];
+  //   //     dataToAdd.push(newData);
+  //   //     setData(dataToAdd); // line need to change
+  //   //     setErrorMessages([])
+  //   //     setIserror(false)
+  //   //   });
+  //   // }
+  //   // else {
+  //   //   setErrorMessages(errorList)
+  //   //   setIserror(true)
+  //   //   resolve()
+  //   // }
+  // }
+   
+ 
   render() {
     return (
       <MaterialTable
@@ -115,6 +127,7 @@ export class DeviceFragments extends Component {
               this.setState((prevState) => {
                 const data = [...prevState.data];
                 data.push(newData);
+                console.log(newData);
                 return { ...prevState, data };
               });
             }, 600);

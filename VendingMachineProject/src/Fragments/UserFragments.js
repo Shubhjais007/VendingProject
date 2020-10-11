@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Container, Box, Typography, TextField, Button, LinearProgress } from '@material-ui/core';
+import {firebaseAuth} from '../firebase';
 import axios from 'axios';
 
 export class UserFragments extends Component {
@@ -94,20 +95,68 @@ export class UserFragments extends Component {
             // password: this.state.password
             // }
 
-            axios
-            .post('/user/register', {
-                first_name: this.state.firstName,
-                last_name: this.state.lastName,
-                email: this.state.user,
-                password: this.state.password
-            })
-            .then(response => {
-                this.setState({                
-                    //userRegister: 'User Registered Sucessfully !!',
-                    show_sucess: true
+            const email = this.state.user + '@embatronix.com';
+            const password = this.state.password;
+            console.log(email);
+            console.log(password);
+            firebaseAuth.createUserWithEmailAndPassword(email,password) 
+            .then(res => {
+                console.log(res)
+                this.setState({              
+                    show_progress: false
+                });
+                axios
+                .post('/user/register', {
+                    first_name: this.state.firstName,
+                    last_name: this.state.lastName,
+                    email: this.state.user,
+                    password: this.state.password
                 })
-                console.log('Registered')
+                .then(response => {
+                    this.setState({                
+                        //userRegister: 'User Registered Sucessfully !!',
+                        show_sucess: true
+                    })
+                    console.log('Registered')
+                })
             })
+            .catch(err => {
+                console.error(err)
+                if (err.code === 'auth/weak-password') {
+                    this.setState({   
+                        password_error:"Too Weak Password !!",
+                        cnfPassword_error:"Too Weak Password !!",           
+                        show_progress: false
+                    });                    
+                }
+                else if (err.code === 'auth/email-already-in-use') {
+                    this.setState({   
+                        user_error:"UserId already exists !!",          
+                        show_progress: false
+                    });                    
+                }
+                else if (err.code === 'auth/network-request-failed') {
+                    this.setState({   
+                        cnfPassword_error:"Network Error !!",           
+                        show_progress: false
+                    });                    
+                }
+            })
+            
+            // axios
+            // .post('/user/register', {
+            //     first_name: this.state.firstName,
+            //     last_name: this.state.lastName,
+            //     email: this.state.user,
+            //     password: this.state.password
+            // })
+            // .then(response => {
+            //     this.setState({                
+            //         //userRegister: 'User Registered Sucessfully !!',
+            //         show_sucess: true
+            //     })
+            //     console.log('Registered')
+            // })
 
             this.setState({                
                 show_progress: false

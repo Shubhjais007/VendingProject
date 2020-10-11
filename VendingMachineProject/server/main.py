@@ -103,6 +103,44 @@ def merchant():
 
     return result
 
+@app.route('/home/userTransaction',methods=['POST'])
+def userTransaction():
+    cur=mysql.connection.cursor()
+    email=request.get_json()['email']
+
+    cur.execute("SELECT ts.indx, ts.Date_time, ts.merchantId, ts.StoreId, ts.TerminalId, ts.TransactionId, ts.Amount, ts.PaymentStatus, ts.VendStatus, ts.Balance FROM transactiondatabase as ts join device as d on d.StoreId = ts.StoreId join user as u on u.Id = d.UserId where u.email ='"+str(email)+"'")
+
+    res = cur.fetchall()    
+    merchantRes = []
+    
+    '''jsonify({"Result":res})`indx``Date_time``merchantId``StoreId``TerminalId`,
+     `TransactionId`, `Amount`, `PaymentStatus`, `VendStatus`, `Balance`
+    else:
+        return make_response(jsonify({"message": "Request body must be JSON"}), 400)'''
+
+    for row in res:
+        response_body = {
+            "index": row['indx'],
+            "date_time": row['Date_time'],
+            "merchantId": row['merchantId'],
+            "storeId": row['StoreId'],
+            "terminalId": row['TerminalId'],
+            "transactionId": row['TransactionId'],
+            "amount": row['Amount'],
+            "paymentStatus": row['PaymentStatus'],
+            "vendorStatus": row['VendStatus'],
+            "error": '',
+            "userCancel": '',
+            "balance": row['Balance']
+        }
+        merchantRes.append(response_body)
+
+    result = make_response(jsonify(merchantRes), 200)
+
+    return result
+
+
+
 @app.route('/home/device',methods=['GET'])
 def device():
     cur=mysql.connection.cursor()    
@@ -161,3 +199,31 @@ def userDevice():
 
     return result
 
+@app.route('/home/addDevice',methods=['POST'])
+def addDevice():
+    cur=mysql.connection.cursor()
+    merchantId=request.get_json()['merchantId']
+    storeId=request.get_json()['storeId']
+    terminalId=request.get_json()['terminalId']
+    userId=request.get_json()['userId']
+    location=request.get_json()['location']
+
+    cur.execute("INSERT INTO device (MerchantId,StoreId,TerminalId,UserId,Location,Status) VALUES ('"
+    +str(merchantId)+"','"
+    +str(storeId)+"','"
+    +str(terminalId)+"',"
+    + "(select id from user where email = '"+str(userId)+"'),'"
+    +str(location)+"','1')"
+    )
+
+    mysql.connection.commit()
+
+    result ={
+     "merchantId":merchantId,
+     "storeId":storeId,
+     "terminalId":terminalId,
+     "userId":userId,
+     "location":location,
+     "status" : "1"
+    }
+    return jsonify({"result":result})

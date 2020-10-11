@@ -67,14 +67,24 @@ export class HomeFragments extends Component {
         { title: 'Balance', field: 'balance'}, 
       ],
       merchantData: [],
+      user : JSON.parse(localStorage.getItem('user')),
     };
   };
   
   //axios.get(EMPLOYEE_API_BASE_URL)
   componentDidMount(){
-    axios.get('/home/merchant').then((res) => {
+    let checkRole = (this.state.user !== null ? this.state.user.first_name : null);
+    let userName = (this.state.user !== null ? this.state.user.email : null);
+    if(checkRole !== "Admin"){
+      axios.post('/home/userTransaction', {email : userName}).then((res) => {
+        this.setState({ merchantData: res.data});
+      });
+    }
+    else{
+      axios.get('/home/merchant').then((res) => {
         this.setState({ merchantData: res.data});
     });
+    }    
   }
 
   render() {
